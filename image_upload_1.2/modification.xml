@@ -1,0 +1,1082 @@
+﻿<hack>
+  <title>Torrent Image Upload</title>
+  <author>Real_ptr</author>
+  <version>1.2(r642)</version>
+  <file>
+    <name>"database"</name>
+    <operation>
+      <action>"sql"</action>
+      <data><![CDATA[ALTER TABLE `{$db_prefix}files` ADD `image` VARCHAR( 255 ) NOT NULL DEFAULT '',
+      ADD `screen1` VARCHAR( 255 ) NOT NULL DEFAULT '',
+      ADD `screen2` VARCHAR( 255 ) NOT NULL DEFAULT '',
+      ADD `screen3` VARCHAR( 255 ) NOT NULL DEFAULT '';]]></data>
+    </operation>
+    <operation>
+      <action>"sql"</action>
+      <data><![CDATA[INSERT INTO `{$db_prefix}settings` ( `key` , `value` ) VALUES ('imageon', 'true');]]></data>
+    </operation>
+    <operation>
+      <action>"sql"</action>
+      <data><![CDATA[INSERT INTO `{$db_prefix}settings` ( `key` , `value` ) VALUES ('uploaddir', 'torrentimg/');]]></data>
+    </operation>
+    <operation>
+      <action>"sql"</action>
+      <data><![CDATA[INSERT INTO `{$db_prefix}settings` ( `key` , `value` ) VALUES ('file_limit', '15');]]></data>
+    </operation>
+    <operation>
+      <action>"sql"</action>
+      <data><![CDATA[INSERT INTO `{$db_prefix}settings` ( `key` , `value` ) VALUES ('screenon', 'true');]]></data>
+    </operation>
+  </file>
+  <file>
+    <name>"$DEFAULT_ROOT/admin/admin.config.php"</name>
+    <operation>
+      <search><![CDATA[$btit_settings["mostpoplimit"]=$_POST["mostpoplimit"];]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+
+        $btit_settings["imageon"]=$_POST["imageon"];
+        $btit_settings["screenon"]=$_POST["screenon"];
+        $btit_settings["uploaddir"]=$_POST["uploaddir"];
+        $btit_settings["file_limit"]=$_POST["file_limit"];
+
+]]></data>
+    </operation>
+    <operation>
+      <search><![CDATA[$btit_settings["xbtt_use"]=($btit_settings["xbtt_use"]=="true"?"checked=\"checked\"":"");]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+
+        $btit_settings["imageonyes"]=($btit_settings["imageon"]?"checked=\"checked\"":"");
+        $btit_settings["imageonno"]=(!$btit_settings["imageon"]?"checked=\"checked\"":"");
+        $btit_settings["screenonyes"]=($btit_settings["screenon"]?"checked=\"checked\"":"");
+        $btit_settings["screenonno"]=(!$btit_settings["screenon"]?"checked=\"checked\"":"");
+
+]]></data>
+    </operation>
+  </file>
+  <file>
+    <name>"$DEFAULT_ROOT/include/config.php"</name>
+    <operation>
+      <search><![CDATA[$votesppage=25;]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+
+$GLOBALS["imageon"] = $btit_settings["imageon"];
+$GLOBALS["screenon"] = $btit_settings["screenon"];
+$GLOBALS["uploaddir"] = $btit_settings["uploaddir"];
+$GLOBALS["file_limit"] = $btit_settings["file_limit"];
+
+]]></data>
+    </operation>
+  </file>
+  <file>
+    <name>"$DEFAULT_ROOT/edit.php"</name>
+    <operation>
+      <search><![CDATA[write_log("Modified torrent $fname ($torhash)","modify");]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+
+        $userfile = $_FILES["userfile"];
+        $screen1 = $_FILES["screen1"];
+        $screen2 = $_FILES["screen2"];
+        $screen3 = $_FILES["screen3"];
+        $image_types = Array ("image/bmp",
+                                "image/jpeg",
+                                "image/pjpeg",
+                                "image/gif",
+                                "image/x-png");
+        switch($_FILES["userfile"]["type"]) {
+            case 'image/bmp':
+            $file_name = $torhash.".bmp";
+            break;
+            case 'image/jpeg':
+            $file_name = $torhash.".jpg";
+            break;
+            case 'image/pjpeg':
+            $file_name = $torhash.".jpeg";
+            break;
+            case 'image/gif':
+            $file_name = $torhash.".gif";
+            break;
+            case 'image/x-png':
+            $file_name = $torhash.".png";
+            break;
+        }
+        switch($_FILES["screen1"]["type"]) {
+            case 'image/bmp':
+            $file_name_s1 = "s1".$torhash.".bmp";
+            break;
+            case 'image/jpeg':
+            $file_name_s1 = "s1".$torhash.".jpg";
+            break;
+            case 'image/pjpeg':
+            $file_name_s1 = "s1".$torhash.".jpeg";
+            break;
+            case 'image/gif':
+            $file_name_s1 = "s1".$torhash.".gif";
+            break;
+            case 'image/x-png':
+            $file_name_s1 = "s1".$torhash.".png";
+            break;
+        }
+        switch($_FILES["screen2"]["type"]) {
+            case 'image/bmp':
+            $file_name_s2 = "s2".$torhash.".bmp";
+            break;
+            case 'image/jpeg':
+            $file_name_s2 = "s2".$torhash.".jpg";
+            break;
+            case 'image/pjpeg':
+            $file_name_s2 = "s2".$torhash.".jpeg";
+            break;
+            case 'image/gif':
+            $file_name_s2 = "s2".$torhash.".gif";
+            break;
+            case 'image/x-png':
+            $file_name_s2 = "s2".$torhash.".png";
+            break;
+        }
+        switch($_FILES["screen3"]["type"]) {
+            case 'image/bmp':
+            $file_name_s3 = "s3".$torhash.".bmp";
+            break;
+            case 'image/jpeg':
+            $file_name_s3 = "s3".$torhash.".jpg";
+            break;
+            case 'image/pjpeg':
+            $file_name_s3 = "s3".$torhash.".jpeg";
+            break;
+            case 'image/gif':
+            $file_name_s3 = "s3".$torhash.".gif";
+            break;
+            case 'image/x-png':
+            $file_name_s3 = "s3".$torhash.".png";
+            break;
+        }
+        $uploadfile = $GLOBALS["uploaddir"] . $file_name;
+        $uploadfile1 = $GLOBALS["uploaddir"] . $file_name_s1;
+        $uploadfile2 = $GLOBALS["uploaddir"] . $file_name_s2;
+        $uploadfile3 = $GLOBALS["uploaddir"] . $file_name_s3;
+        $file_size = $_FILES["userfile"]["size"];
+        $file_size1 = $_FILES["screen1"]["size"];
+        $file_size2 = $_FILES["screen2"]["size"];
+        $file_size3 = $_FILES["screen3"]["size"];
+        $file_type = $_FILES["userfile"]["type"];
+        $file_type1 = $_FILES["screen1"]["type"];
+        $file_type2 = $_FILES["screen2"]["type"];
+        $file_type3 = $_FILES["screen3"]["type"];
+        $file_size = makesize1($file_size);
+        $file_size1 = makesize1($file_size1);
+        $file_size2 = makesize1($file_size2);
+        $file_size3 = makesize1($file_size3);
+        if (isset($_FILES["userfile"]))
+        {
+            if ($_FILES["userfile"]["name"] =='')
+            {
+            // do nothing...
+            }
+            else
+            {
+                if ($file_size > $GLOBALS["file_limit"])
+                {
+                    err_msg($language["ERROR"],$language["FILE_UPLOAD_TO_BIG"].": ".$file_limit.". ".$language["IMAGE_WAS"].": ".$file_size);
+                    stdfoot();
+                    exit();
+                }
+                elseif (in_array (strtolower ($file_type), $image_types, TRUE))
+                {
+                    if (@move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile))
+                    {
+                        do_sqlquery("UPDATE {$TABLE_PREFIX}files SET image='".$file_name."' WHERE info_hash='" . $torhash . "'",true);
+                        $image_drop = "" . $_POST["userfileold"]. "";
+
+                        if (!empty($image_drop))
+                            unlink("".$GLOBALS["uploaddir"]."$image_drop");
+                    }
+                    else
+                    {
+                        err_msg($language["ERROR"],$language["MOVE_IMAGE_TO"]." ".$GLOBALS["uploaddir"].". ".$language["CHECK_FOLDERS_PERM"]);
+                        stdfoot();
+                        exit();
+                    }
+                }
+                else
+                {
+                    err_msg ($language["ERROR"],$language["ILEGAL_UPLOAD"]);
+                    stdfoot();
+                    exit;
+                }
+            }
+        }
+        if (isset($_FILES["screen1"]))
+        {
+            if ($_FILES["screen1"]["name"] =='')
+            {
+            // do nothing...
+            }
+            else
+            {
+                if ($file_size1 > $GLOBALS["file_limit"])
+                {
+                    err_msg($language["ERROR"],$language["FILE_UPLOAD_TO_BIG"].": ".$file_limit.". ".$language["IMAGE_WAS"].": ".$file_size1);
+                    stdfoot();
+                    exit();
+                }
+                elseif (in_array (strtolower ($file_type1), $image_types, TRUE))
+                {
+                    if (@move_uploaded_file($_FILES['screen1']['tmp_name'], $uploadfile1))
+                    {
+                        do_sqlquery("UPDATE {$TABLE_PREFIX}files SET screen1='".$file_name_s1."' WHERE info_hash='" . $torhash . "'",true);
+                        $image_drop = "" . $_POST["userfileold1"]. "";
+
+                        if (!empty($image_drop))
+                            unlink("".$GLOBALS["uploaddir"]."$image_drop");
+                    }
+                    else
+                    {
+                        err_msg($language["ERROR"],$language["MOVE_IMAGE_TO"]." ".$GLOBALS["uploaddir"].". ".$language["CHECK_FOLDERS_PERM"]);
+                        stdfoot();
+                        exit();
+                    }
+                }
+                else
+                {
+                    err_msg ($language["ERROR"],$language["ILEGAL_UPLOAD"]);
+                    stdfoot();
+                    exit;
+                }
+            }
+        }
+        if (isset($_FILES["screen2"]))
+        {
+            if ($_FILES["screen2"]["name"] =='')
+            {
+            // do nothing...
+            }
+            else
+            {
+                if ($file_size2 > $GLOBALS["file_limit"])
+                {
+                    err_msg($language["ERROR"],$language["FILE_UPLOAD_TO_BIG"].": ".$file_limit.". ".$language["IMAGE_WAS"].": ".$file_size2);
+                    stdfoot();
+                    exit();
+                }
+                elseif (in_array (strtolower ($file_type2), $image_types, TRUE))
+                {
+                    if (@move_uploaded_file($_FILES['screen2']['tmp_name'], $uploadfile2))
+                    {
+                        do_sqlquery("UPDATE {$TABLE_PREFIX}files SET screen2='".$file_name_s2."' WHERE info_hash='" . $torhash . "'",true);
+                        $image_drop = "" . $_POST["userfileold2"]. "";
+
+                        if (!empty($image_drop))
+                            unlink("".$GLOBALS["uploaddir"]."$image_drop");
+                    }
+                    else
+                    {
+                        err_msg($language["ERROR"],$language["MOVE_IMAGE_TO"]." ".$GLOBALS["uploaddir"].". ".$language["CHECK_FOLDERS_PERM"]);
+                        stdfoot();
+                        exit();
+                    }
+                }
+                else
+                {
+                    err_msg ($language["ERROR"],$language["ILEGAL_UPLOAD"]);
+                    stdfoot();
+                    exit;
+                }
+            }
+        }
+        if (isset($_FILES["screen3"]))
+        {
+            if ($_FILES["screen3"]["name"] =='')
+            {
+            // do nothing...
+            }
+            else
+            {
+                if ($file_size3 > $GLOBALS["file_limit"])
+                {
+                    err_msg($language["ERROR"],$language["FILE_UPLOAD_TO_BIG"].": ".$file_limit.". ".$language["IMAGE_WAS"].": ".$file_size3);
+                    stdfoot();
+                    exit();
+                }
+                if (in_array (strtolower ($file_type3), $image_types, TRUE))
+                {
+                    if (@move_uploaded_file($_FILES['screen3']['tmp_name'], $uploadfile3))
+                    {
+                        do_sqlquery("UPDATE {$TABLE_PREFIX}files SET screen3='".$file_name_s3."' WHERE info_hash='" . $torhash . "'",true);
+                        $image_drop = "" . $_POST["userfileold3"]. "";
+
+                        if (!empty($image_drop))
+                            unlink("".$GLOBALS["uploaddir"]."$image_drop");
+                    }
+                    else
+                    {
+                        err_msg($language["ERROR"],$language["MOVE_IMAGE_TO"]." ".$GLOBALS["uploaddir"].". ".$language["CHECK_FOLDERS_PERM"]);
+                        stdfoot();
+                        exit();
+                    }
+                }
+                else
+                {
+                    err_msg ($language["ERROR"],$language["ILEGAL_UPLOAD"]);
+                    stdfoot();
+                    exit;
+                }
+            }
+        }
+
+]]></data>
+    </operation>
+    <operation>
+      <search><![CDATA[$query ="SELECT]]></search>
+      <action>"replace"</action>
+      <data><![CDATA[  $query ="SELECT f.image, f.screen1, f.screen2, f.screen3,]]></data>
+    </operation>
+    <operation>
+      <search><![CDATA[$torrenttpl->set("language",$language);]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+
+    $row=$res[0];
+    $torrenttpl->set("imageon",$GLOBALS["imageon"] == "true", TRUE);
+    $torrenttpl->set("screenon",$GLOBALS["screenon"] == "true", TRUE);
+
+]]></data>
+    </operation>
+  </file>
+  <file>
+    <name>"$DEFAULT_ROOT/delete.php"</name>
+    <operation>
+      <search><![CDATA[if ($XBTT_USE)
+   $res = do_sqlquery("SELECT]]></search>
+      <action>"replace"</action>
+      <data><![CDATA[if ($XBTT_USE)
+   $res = do_sqlquery("SELECT f.screen1, f.screen2, f.screen3,]]></data>
+    </operation>
+    <operation>
+      <search><![CDATA[else
+    $res = do_sqlquery("SELECT]]></search>
+      <action>"replace"</action>
+      <data><![CDATA[else
+    $res = do_sqlquery("SELECT f.screen1, f.screen2, f.screen3, f.image,]]></data>
+    </operation>
+    <operation>
+      <search><![CDATA[$row = mysql_fetch_assoc($res);]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+
+      $image_drop = "" . $row["image"]. "";
+      $image_drop1 = "" . $row["screen1"]. "";
+      $image_drop2 = "" . $row["screen2"]. "";
+      $image_drop3 = "" . $row["screen3"]. "";
+
+]]></data>
+    </operation>
+    <operation>
+      <search><![CDATA[write_log("Deleted]]></search>
+      <action>"add"</action>
+      <where>"before"</where>
+      <data><![CDATA[
+
+      if (!empty($image_drop))
+        @unlink("".$GLOBALS["uploaddir"]."$image_drop");
+      if (!empty($image_drop1))
+        @unlink("".$GLOBALS["uploaddir"]."$image_drop1");
+      if (!empty($image_drop2))
+        @unlink("".$GLOBALS["uploaddir"]."$image_drop2");
+      if (!empty($image_drop3))
+        @unlink("".$GLOBALS["uploaddir"]."$image_drop3");
+
+]]></data>
+    </operation>
+  </file>
+  <file>
+    <name>"$DEFAULT_ROOT/details.php"</name>
+    <operation>
+      <search><![CDATA[$res = get_result("SELECT]]></search>
+      <action>"replace"</action>
+      <data><![CDATA[$res = get_result("SELECT f.screen1, f.screen2, f.screen3, f.image,]]></data>
+    </operation>
+    <operation>
+      <search><![CDATA[$torrenttpl->set("language",$language);]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+
+      $torrenttpl->set("IMAGEIS",!empty($row["image"]),TRUE);
+      $torrenttpl->set("SCREENIS1",!empty($row["screen1"]),TRUE);
+      $torrenttpl->set("SCREENIS2",!empty($row["screen2"]),TRUE);
+      $torrenttpl->set("SCREENIS3",!empty($row["screen3"]),TRUE);
+      $torrenttpl->set("uploaddir",$uploaddir);
+if (!empty($row["image"]))
+{
+$image1 = "".$row["image"]."";
+$uploaddir = $GLOBALS["uploaddir"];
+$image_new = "torrentimg/$image1"; //url of picture
+//$image_new = str_replace(' ','%20',$image_new); //take url and replace spaces
+$max_width= "490"; //maximum width allowed for pictures
+$resize_width= "490"; //same as max width
+$size = getimagesize("$image_new"); //get the actual size of the picture
+$width= $size[0]; // get width of picture
+$height= $size[1]; // get height of picture
+if ($width>$max_width){
+$new_width=$resize_width; // Resize Image If over max width
+}else {
+$new_width=$width; // Keep original size from array because smaller than max
+}
+$torrenttpl->set("width",$new_width);
+}
+]]></data>
+    </operation>
+  </file>
+  <file>
+    <name>"$DEFAULT_ROOT/include/functions.php"</name>
+    <operation>
+      <search><![CDATA[function makesize]]></search>
+      <action>"add"</action>
+      <where>"before"</where>
+      <data><![CDATA[
+
+function makesize1($bytes) {
+  if (abs($bytes) < 1000 * 1024)
+    return number_format($bytes / 1024, 2) . "";
+  if (abs($bytes) < 1000 * 1048576)
+    return number_format($bytes / 1048576, 2) . "";
+  if (abs($bytes) < 1000 * 1073741824)
+    return number_format($bytes / 1073741824, 2) . "";
+  return number_format($bytes / 1099511627776, 2) . "";
+}
+
+
+]]></data>
+    </operation>
+  </file>
+  <file>
+    <name>"$DEFAULT_ROOT/upload.php"</name>
+    <operation>
+      <search><![CDATA[//      if ($announce!=$BASEURL."/announce.php")]]></search>
+      <action>"replace"</action>
+      <data><![CDATA[        $userfile = $_FILES["userfile"];
+        $screen1 = $_FILES["screen1"];
+        $screen2 = $_FILES["screen2"];
+        $screen3 = $_FILES["screen3"];
+        $image_types = Array ("image/bmp",
+                                "image/jpeg",
+                                "image/pjpeg",
+                                "image/gif",
+                                "image/x-png");
+        switch($_FILES["userfile"]["type"]) {
+            case 'image/bmp':
+            $file_name = $hash.".bmp";
+            break;
+            case 'image/jpeg':
+            $file_name = $hash.".jpg";
+            break;
+            case 'image/pjpeg':
+            $file_name = $hash.".jpeg";
+            break;
+            case 'image/gif':
+            $file_name = $hash.".gif";
+            break;
+            case 'image/x-png':
+            $file_name = $hash.".png";
+            break;
+        }
+        switch($_FILES["screen1"]["type"]) {
+            case 'image/bmp':
+            $file_name_s1 = "s1".$hash.".bmp";
+            break;
+            case 'image/jpeg':
+            $file_name_s1 = "s1".$hash.".jpg";
+            break;
+            case 'image/pjpeg':
+            $file_name_s1 = "s1".$hash.".jpeg";
+            break;
+            case 'image/gif':
+            $file_name_s1 = "s1".$hash.".gif";
+            break;
+            case 'image/x-png':
+            $file_name_s1 = "s1".$hash.".png";
+            break;
+        }
+        switch($_FILES["screen2"]["type"]) {
+            case 'image/bmp':
+            $file_name_s2 = "s2".$hash.".bmp";
+            break;
+            case 'image/jpeg':
+            $file_name_s2 = "s2".$hash.".jpg";
+            break;
+            case 'image/pjpeg':
+            $file_name_s2 = "s2".$hash.".jpeg";
+            break;
+            case 'image/gif':
+            $file_name_s2 = "s2".$hash.".gif";
+            break;
+            case 'image/x-png':
+            $file_name_s2 = "s2".$hash.".png";
+            break;
+        }
+        switch($_FILES["screen3"]["type"]) {
+            case 'image/bmp':
+            $file_name_s3 = "s3".$hash.".bmp";
+            break;
+            case 'image/jpeg':
+            $file_name_s3 = "s3".$hash.".jpg";
+            break;
+            case 'image/pjpeg':
+            $file_name_s3 = "s3".$hash.".jpeg";
+            break;
+            case 'image/gif':
+            $file_name_s3 = "s3".$hash.".gif";
+            break;
+            case 'image/x-png':
+            $file_name_s3 = "s3".$hash.".png";
+            break;
+        }
+        $uploadfile = $GLOBALS["uploaddir"] . $file_name;
+        $uploadfile1 = $GLOBALS["uploaddir"] . $file_name_s1;
+        $uploadfile2 = $GLOBALS["uploaddir"] . $file_name_s2;
+        $uploadfile3 = $GLOBALS["uploaddir"] . $file_name_s3;
+        $file_size = $_FILES["userfile"]["size"];
+        $file_size1 = $_FILES["screen1"]["size"];
+        $file_size2 = $_FILES["screen2"]["size"];
+        $file_size3 = $_FILES["screen3"]["size"];
+        $file_type = $_FILES["userfile"]["type"];
+        $file_type1 = $_FILES["screen1"]["type"];
+        $file_type2 = $_FILES["screen2"]["type"];
+        $file_type3 = $_FILES["screen3"]["type"];
+        $file_size = makesize1($file_size);
+        $file_size1 = makesize1($file_size1);
+        $file_size2 = makesize1($file_size2);
+        $file_size3 = makesize1($file_size3);
+        if (isset($_FILES["userfile"]))
+        {
+            if ($_FILES["userfile"]["name"] =='')
+            {
+            // do nothing...
+            }
+            else
+            {
+                if ($file_size > $GLOBALS["file_limit"])
+                {
+                    err_msg($language["ERROR"],$language["FILE_UPLOAD_TO_BIG"].": ".$file_limit.". ".$language["IMAGE_WAS"].": ".$file_size);
+                    stdfoot();
+                    exit();
+                }
+                if (in_array (strtolower ($file_type), $image_types, TRUE))
+                {
+                    if (@move_uploaded_file($_FILES['userfile']['tmp_name'], $uploadfile))
+                    {
+                    }
+                    else
+                    {
+                        err_msg($language["ERROR"],$language["MOVE_IMAGE_TO"]." ".$GLOBALS["uploaddir"].". ".$language["CHECK_FOLDERS_PERM"]);
+                        stdfoot();
+                        exit();
+                    }
+                }
+                else
+                {
+                    err_msg ($language["ERROR"],$language["ILEGAL_UPLOAD"]);
+                    stdfoot();
+                    exit;
+                }
+            }
+        }
+        if (isset($_FILES["screen1"]))
+        {
+            if ($_FILES["screen1"]["name"] =='')
+            {
+            // do nothing...
+            }
+            else
+            {
+                if ($file_size1 > $GLOBALS["file_limit"])
+                {
+                    err_msg($language["ERROR"],$language["FILE_UPLOAD_TO_BIG"].": ".$file_limit.". ".$language["IMAGE_WAS"].": ".$file_size1);
+                    stdfoot();
+                    exit();
+                }
+                if (in_array (strtolower ($file_type1), $image_types, TRUE))
+                {
+                    if (@move_uploaded_file($_FILES['screen1']['tmp_name'], $uploadfile1))
+                    {
+                    }
+                    else
+                    {
+                        err_msg($language["ERROR"],$language["MOVE_IMAGE_TO"]." ".$GLOBALS["uploaddir"].". ".$language["CHECK_FOLDERS_PERM"]);
+                        stdfoot();
+                        exit();
+                    }
+                }
+                else
+                {
+                    err_msg ($language["ERROR"],$language["ILEGAL_UPLOAD"]);
+                    stdfoot();
+                    exit;
+                }
+            }
+        }
+        if (isset($_FILES["screen2"]))
+        {
+            if ($_FILES["screen2"]["name"] =='')
+            {
+            // do nothing...
+            }
+            else
+            {
+                if ($file_size2 > $GLOBALS["file_limit"])
+                {
+                    err_msg($language["ERROR"],$language["FILE_UPLOAD_TO_BIG"].": ".$file_limit.". ".$language["IMAGE_WAS"].": ".$file_size2);
+                    stdfoot();
+                    exit();
+                }
+                if (in_array (strtolower ($file_type2), $image_types, TRUE))
+                {
+                    if (@move_uploaded_file($_FILES['screen2']['tmp_name'], $uploadfile2))
+                    {
+                    }
+                    else
+                    {
+                        err_msg($language["ERROR"],$language["MOVE_IMAGE_TO"]." ".$GLOBALS["uploaddir"].". ".$language["CHECK_FOLDERS_PERM"]);
+                        stdfoot();
+                        exit();
+                    }
+                }
+                else
+                {
+                    err_msg ($language["ERROR"],$language["ILEGAL_UPLOAD"]);
+                    stdfoot();
+                    exit;
+                }
+            }
+        }
+        if (isset($_FILES["screen3"]))
+        {
+            if ($_FILES["screen3"]["name"] =='')
+            {
+            // do nothing...
+            }
+            else
+            {
+                if ($file_size3 > $GLOBALS["file_limit"])
+                {
+                    err_msg($language["ERROR"],$language["FILE_UPLOAD_TO_BIG"].": ".$file_limit.". ".$language["IMAGE_WAS"].": ".$file_size3);
+                    stdfoot();
+                    exit();
+                }
+                if (in_array (strtolower ($file_type3), $image_types, TRUE))
+                {
+                    if (@move_uploaded_file($_FILES['screen3']['tmp_name'], $uploadfile3))
+                    {
+                    }
+                    else
+                    {
+                        err_msg($language["ERROR"],$language["MOVE_IMAGE_TO"]." ".$GLOBALS["uploaddir"].". ".$language["CHECK_FOLDERS_PERM"]);
+                        stdfoot();
+                        exit();
+                    }
+                }
+                else
+                {
+                    err_msg ($language["ERROR"],$language["ILEGAL_UPLOAD"]);
+                    stdfoot();
+                    exit;
+                }
+            }
+        }
+//      if ($announce!=$BASEURL."/announce.php")]]></data>
+    </operation>
+    <operation>
+      <search><![CDATA[@chmod($TORRENTSDIR . "/" . $hash . ".btf",0766);]]></search>
+      <action>"add"</action>
+      <where>"before"</where>
+      <data><![CDATA[
+
+         do_sqlquery("UPDATE {$TABLE_PREFIX}files set image='$file_name', screen1='$file_name_s1', screen2='$file_name_s2', screen3='$file_name_s3' WHERE info_hash=\"$hash\"");
+
+]]></data>
+    </operation>
+    <operation>
+      <search><![CDATA[      $uploadtpl->set("textbbcode",  $bbc);]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+
+      $uploadtpl->set("imageon",$GLOBALS["imageon"] == "true", TRUE);
+      $uploadtpl->set("screenon",$GLOBALS["screenon"] == "true", TRUE);
+
+]]></data>
+    </operation>
+  </file>
+  <file>
+    <name>"$DEFAULT_STYLE_PATH/admin.config.tpl"</name>
+    <operation>
+      <search><![CDATA[<td class="lista"><input type="text" name="mostpoplimit" value="<tag:config.mostpoplimit />" size="3" maxlength="3" /></td>
+    </tr>]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+
+    <tr>
+      <td class="header" align="center" colspan="4"><tag:language.IMAGE_SETTING /></td>
+    </tr>
+    <tr>
+      <td class="header"><tag:language.ALLOW_IMAGE_UPLOAD /></td>
+      <td class="lista">&nbsp;&nbsp;Yes&nbsp;<input type="radio" name="imageon" value="true"<tag:config.imageonyes /> />&nbsp;&nbsp;No&nbsp;<input type="radio" name="imageon" value="false"<tag:config.imageonno /> /></td>
+      <td class="header"><tag:language.ALLOW_SCREEN_UPLOAD /></td>
+      <td class="lista">&nbsp;&nbsp;Yes&nbsp;<input type="radio" name="screenon" value="true"<tag:config.screenonyes /> />&nbsp;&nbsp;No&nbsp;<input type="radio" name="screenon" value="false"<tag:config.screenonno /> /></td>
+    </tr>
+    <tr>
+      <td class="header"><tag:language.IMAGE_UPLOAD_DIR /></td>
+      <td class="lista"><input type="text" name="uploaddir" value="<tag:config.uploaddir />" size="40" /></td>
+      <td class="header"><tag:language.FILE_SIZELIMIT /></td>
+      <td class="lista"><input type="text" name="file_limit" value="<tag:config.file_limit />" size="40" /></td>
+    </tr>
+
+]]></data>
+    </operation>
+  </file>
+  <file>
+    <name>"$DEFAULT_STYLE_PATH/torrent.details.tpl"</name>
+    <operation>
+      <search><![CDATA[<tr>
+          <td align="right" class="header"><tag:language.INFO_HASH /></td>
+          <td class="lista" align="center" style="text-align:left;" valign="top"><tag:torrent.info_hash /></td>
+        </tr>]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+
+        <if:IMAGEIS>
+        <tr>
+          <td align="right" class="header" valign="top"><tag:language.IMAGE /></td>
+          <td class="lista" align="center"><a href="<tag:uploaddir /><tag:torrent.image />" title="view image" rel="lightbox"><img src="<tag:uploaddir /><tag:torrent.image />" width=<tag:width />></a></td>
+        </tr>
+        </if:IMAGEIS>
+
+]]></data>
+    </operation>
+    <operation>
+      <search><![CDATA[<tr>
+          <td align="right" class="header"><tag:language.CATEGORY_FULL /></td>
+          <td class="lista" align="center" style="text-align:left;" valign="top"><tag:torrent.cat_name /></td>
+        </tr>]]></search>
+      <action>"add"</action>
+      <where>"before"</where>
+      <data><![CDATA[
+
+      <tr>
+      <td align="right" class="header" valign="top"><tag:language.SCREEN /></td>
+      <td class="lista">
+      <table class="lista" border="0" cellspacing="0" cellpadding="0">
+        <if:SCREENIS1>
+          <td class="lista" align="center"><a href="<tag:uploaddir /><tag:torrent.screen1 />" title="view image" rel="lightbox"><img src="thumbnail.php?size=150&path=<tag:uploaddir /><tag:torrent.screen1 />"></a></td>
+        </if:SCREENIS1>
+        <if:SCREENIS2>
+          <td class="lista" align="center"><a href="<tag:uploaddir /><tag:torrent.screen2 />" title="view image" rel="lightbox"><img src="thumbnail.php?size=150&path=<tag:uploaddir /><tag:torrent.screen2 />"></a></td>
+        </if:SCREENIS2>
+        <if:SCREENIS3>
+          <td class="lista" align="center"><a href="<tag:uploaddir /><tag:torrent.screen3 />" title="view image" rel="lightbox"><img src="thumbnail.php?size=150&path=<tag:uploaddir /><tag:torrent.screen3 />"></a></td>
+        </if:SCREENIS3>
+      </table>
+      </td>
+      </tr>
+
+]]></data>
+    </operation>
+    <operation>
+      <search><![CDATA[</script>]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+
+<script type="text/javascript" src="jscript/prototype.js"></script>
+<script type="text/javascript" src="jscript/scriptaculous.js?load=effects"></script>
+<script type="text/javascript" src="jscript/lightbox.js"></script>
+<link rel="stylesheet" href="jscript/lightbox.css" type="text/css" media="screen" />
+
+]]></data>
+    </operation>
+  </file>
+  <file>
+    <name>"$DEFAULT_STYLE_PATH/torrent.edit.tpl"</name>
+    <operation>
+      <search><![CDATA[<form action="<tag:torrent.link />" method="post" name="edit">]]></search>
+      <action>"replace"</action>
+      <data><![CDATA[<form action="<tag:torrent.link />" method="post" name="edit" enctype="multipart/form-data">]]></data>
+    </operation>
+    <operation>
+      <search><![CDATA[<tr>
+        <td align="right" class="header"><tag:language.DESCRIPTION /></td>
+        <td class="lista"><tag:torrent.description /></td>
+      </tr>]]></search>
+      <action>"add"</action>
+      <where>"before"</where>
+      <data><![CDATA[
+
+      <if:imageon>
+      <tr>
+      <td class="header" ><tag:language.IMAGE /> (<tag:language.FACOLTATIVE />):<input type="hidden" name="userfileold" value="<tag:torrent.image />" /></td>
+      <td class="lista" align="left"><input type="file" name="userfile" size="15" /></td>
+      </tr>
+      </if:imageon>
+
+]]></data>
+    </operation>
+    <operation>
+      <search><![CDATA[td class="lista"><tag:torrent.description /></td>
+      </tr>]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+
+      <if:screenon>
+      <tr>
+      <td class="header" ><tag:language.SCREEN /> (<tag:language.FACOLTATIVE />):<input type="hidden" name="userfileold1" value="<tag:torrent.screen1 />" /></td>
+      <td class="lista">
+      <table class="lista" border="0" cellspacing="0" cellpadding="0">
+      <tr>
+      <td class="lista" align="left"><input type="file" name="screen1" size="5" /></td>
+      <td class="lista" align="left"><input type="file" name="screen2" size="5" /></td>
+      <td class="lista" align="left"><input type="file" name="screen3" size="5" /></td>
+      </tr>
+      </table>
+      </td>
+      </tr>
+      </if:screenon>
+
+      ]]></data>
+    </operation>
+  </file>
+  <file>
+    <name>"$DEFAULT_STYLE_PATH/upload.tpl"</name>
+    <operation>
+      <search><![CDATA[<tr>
+      <td class="header" ><tag:language.FILE_NAME /></td>
+      <td class="lista" align="left"><input type="text" name="filename" size="50" maxlength="200" /></td>
+    </tr>]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+
+  <if:imageon>
+    <tr>
+      <td class="header" ><tag:language.IMAGE /> (<tag:language.FACOLTATIVE />):</td>
+      <td class="lista" align="left"><input type="file" name="userfile" size="15" /></td>
+    </tr>
+  </if:imageon>
+
+]]></data>
+    </operation>
+    <operation>
+      <search><![CDATA[<tr>
+      <td class="header" valign="top"><tag:language.DESCRIPTION /></td>
+      <td class="lista" ><tag:textbbcode /></td>
+    </tr>]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+
+    <if:screenon>
+    <tr>
+      <td class="header"><tag:language.SCREEN /> (<tag:language.FACOLTATIVE />):</td>
+      <td class="lista">
+      <table class="lista" border="0" cellspacing="0" cellpadding="0">
+      <tr>
+      <td class="lista" align="left"><input type="file" name="screen1" size="5" /></td>
+      <td class="lista" align="left"><input type="file" name="screen2" size="5" /></td>
+      <td class="lista" align="left"><input type="file" name="screen3" size="5" /></td>
+      </tr>
+      </table>
+      </td>
+    </tr>
+  </if:screenon>
+
+]]></data>
+    </operation>
+  </file>
+  <file>
+  <name>"$DEFAULT_LANGUAGE_PATH/lang_upload.php"</name>
+    <operation>
+      <search><![CDATA[?>]]></search>
+      <action>"add"</action>
+      <data><![CDATA[
+
+$language["FILE_UPLOAD_TO_BIG"]="File size to big for upload!! Limit";
+$language["IMAGE_WAS"]="Image size";
+$language["MOVE_IMAGE_TO"]="Could not move image to";
+$language["CHECK_FOLDERS_PERM"]="Please check the folder permissons and try again.";
+$language["ILEGAL_UPLOAD"]="Ilegal upload!! This is not a image<br>Please press back and try again";
+$language["IMAGE"]="Image";
+$language["SCREEN"]="Screenshots";
+
+]]></data>
+      <where>"before"</where>
+    </operation>
+  </file>
+  <file>
+  <name>"$DEFAULT_LANGUAGE_PATH/lang_admin.php"</name>
+    <operation>
+      <search><![CDATA[?>]]></search>
+      <action>"add"</action>
+      <data><![CDATA[
+
+$language["IMAGE_SETTING"]="Image Settings";
+$language["ALLOW_IMAGE_UPLOAD"]="Allow image upload";
+$language["ALLOW_SCREEN_UPLOAD"]="Allow screens upload";
+$language["IMAGE_UPLOAD_DIR"]="Image upload dir";
+$language["FILE_SIZELIMIT"]="Image size limit";
+
+]]></data>
+      <where>"before"</where>
+    </operation>
+  </file>
+  <file>
+  <name>"$DEFAULT_LANGUAGE_PATH/lang_main.php"</name>
+    <operation>
+      <search><![CDATA[?>]]></search>
+      <action>"add"</action>
+      <data><![CDATA[
+
+$language["FILE_UPLOAD_TO_BIG"]="File size to big for upload!! Limit";
+$language["IMAGE_WAS"]="Image size";
+$language["MOVE_IMAGE_TO"]="Could not move image to";
+$language["CHECK_FOLDERS_PERM"]="Please check the folder permissons and try again.";
+$language["ILEGAL_UPLOAD"]="Ilegal upload!! This is not a image<br>Please press back and try again";
+$language["IMAGE"]="Image";
+$language["SCREEN"]="Screenshots";
+
+]]></data>
+      <where>"before"</where>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/index.php"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/torrentimg"</where>
+      <data>"index.php"</data>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/thumbnail.php"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT"</where>
+      <data>"thumbnail.php"</data>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/effects.js"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/jscript"</where>
+      <data>"effects.js"</data>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/lightbox.css"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/jscript"</where>
+      <data>"lightbox.css"</data>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/lightbox.js"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/jscript"</where>
+      <data>"lightbox.js"</data>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/prototype.js"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/jscript"</where>
+      <data>"prototype.js"</data>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/scriptaculous.js"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/jscript"</where>
+      <data>"scriptaculous.js"</data>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/blank.gif"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/images"</where>
+      <data>"blank.gif"</data>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/close.gif"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/images"</where>
+      <data>"close.gif"</data>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/closelabel.gif"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/images"</where>
+      <data>"closelabel.gif"</data>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/loading.gif"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/images"</where>
+      <data>"loading.gif"</data>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/next.gif"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/images"</where>
+      <data>"next.gif"</data>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/nextlabel.gif"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/images"</where>
+      <data>"nextlabel.gif"</data>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/prev.gif"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/images"</where>
+      <data>"prev.gif"</data>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/prevlabel.gif"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/images"</where>
+      <data>"prevlabel.gif"</data>
+    </operation>
+  </file>
+</hack>
