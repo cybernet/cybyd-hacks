@@ -38,11 +38,11 @@
           <action>"add"</action>
           <data><![CDATA[
     //mod gold
-$gold = mysql_escape_string(0);
+$gold = mysql_real_escape_string(0);
 //setting gold post var
 if (isset($_POST["gold"]) && $_POST["gold"] != '')
 {
-   $gold = mysql_escape_string($_POST["gold"]);
+   $gold = mysql_real_escape_string($_POST["gold"]);
 }
 //end gold mod
 ]]></data>
@@ -402,7 +402,7 @@ $language["ACP_GOLD"]="Gold torrents settings";
     $golden = 0;
    if($_POST["gold"]!='' && isset($_POST["gold"]))
    {
-    $golden = mysql_escape_string($_POST["gold"]);
+    $golden = mysql_real_escape_string($_POST["gold"]);
    }
    ]]></data>
       <where>"after"</where>
