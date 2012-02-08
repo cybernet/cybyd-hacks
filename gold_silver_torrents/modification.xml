@@ -1,6 +1,6 @@
 <hack>
   <title>Gold/Silver Torrent</title>
-  <author>Losmi ver 1.1(rev 669)</author>
+  <author>Losmi ver 1.2 ( rev 740 )</author>
   <version>1.2</version>
   <file>
     <name>"database"</name>
@@ -37,14 +37,14 @@
               <search><![CDATA[else $url = 0;]]></search>
           <action>"add"</action>
           <data><![CDATA[
-    //mod gold
+// Gold/Silver Torrent v 1.2 by Losmi / start
 $gold = mysql_real_escape_string(0);
-//setting gold post var
+// setting gold post var
 if (isset($_POST["gold"]) && $_POST["gold"] != '')
 {
    $gold = mysql_real_escape_string($_POST["gold"]);
 }
-//end gold mod
+// Gold/Silver Torrent v 1.2 by Losmi / end
 ]]></data>
           <where>"after"</where>
     </operation>
@@ -54,8 +54,9 @@ if (isset($_POST["gold"]) && $_POST["gold"] != '')
       <where>"after"</where>
       <data><![CDATA[
       
-      // gold/silver torrent
+      // Gold/Silver Torrent v 1.2 by Losmi / start
       do_sqlquery("UPDATE {$TABLE_PREFIX}files SET gold='$gold' WHERE info_hash=\"$hash\"");
+      // Gold/Silver Torrent v 1.2 by Losmi / end
 
 ]]></data>
     </operation>
@@ -94,7 +95,7 @@ if (isset($_POST["gold"]) && $_POST["gold"] != '')
       <action>"add"</action>
       <data><![CDATA[
 
-//gold mod
+// Gold/Silver Torrent v 1.2 by Losmi / start
 function getStatus($gold=0)
 {
     if($gold == 0)
@@ -190,7 +191,7 @@ function createGoldCategories($selected='')
       $gold_select_box .='</select><div id="description"></div>';
       return $gold_select_box;
 }
-//end gold
+// Gold/Silver Torrent v 1.2 by Losmi / end
 
 ]]></data>
       <where>"before"</where>
@@ -211,7 +212,7 @@ function createGoldCategories($selected='')
         $by="DESC";]]></search>
       <action>"add"</action>
       <data><![CDATA[
-/*Mod by losmi - gold mod*/
+// Gold/Silver Torrent v 1.2 by Losmi
 ]]></data>
       <where>"before"</where>
       <operation>
@@ -232,7 +233,7 @@ function createGoldCategories($selected='')
               <search><![CDATA[if (intval($CURUSER["WT"])>0)]]></search>
               <action>"add"</action>
               <data><![CDATA[
-    //gold mod
+    // Gold/Silver Torrent v 1.2 by Losmi / start
     $silver_picture='';
     $gold_picture ='';
      $res=get_result("SELECT * FROM {$TABLE_PREFIX}gold  WHERE id='1'",true);
@@ -251,6 +252,7 @@ function createGoldCategories($selected='')
     {
     $torrents[$i]["gold"] = '<img src="gold/'.$gold_picture.'" alt="gold"/>';
     }
+// Gold/Silver Torrent v 1.2 by Losmi / end
         ]]></data>
               <where>"before"</where>
     </operation>
@@ -302,7 +304,7 @@ function createGoldCategories($selected='')
      <search><![CDATA[$filename=cut_string($data["filename"],intval($btit_settings["cut_name"]));]]></search>
       <action>"add"</action>
       <data><![CDATA[
-      //gold mod
+      // Gold/Silver Torrent v 1.2 by Losmi / start
      $silver_picture='';
      $gold_picture ='';
      $res=get_result("SELECT * FROM {$TABLE_PREFIX}gold  WHERE id='1'",true);
@@ -320,7 +322,7 @@ function createGoldCategories($selected='')
         {
         $gold = '<img src="gold/'.$gold_picture.'" alt="gold"/>';
         }
-        //end gold mod
+        // Gold/Silver Torrent v 1.2 by Losmi / end
         ]]></data>
         <where>"after"</where>
     </operation> 
@@ -359,7 +361,7 @@ function createGoldCategories($selected='')
      <search><![CDATA[?>]]></search>
       <action>"add"</action>
       <data><![CDATA[
-//GOLD
+// Gold/Silver Torrent v 1.2 by Losmi / start
 $language["GOLD_TYPE"]="Torrent type";
 $language["GOLD_PICTURE"]="Gold picture";
 $language["SILVER_PICTURE"]="Silver picture";
@@ -367,7 +369,7 @@ $language["GOLD_DESCRIPTION"]="Gold description";
 $language["SILVER_DESCRIPTION"]="Silver description";
 $language["CLASSIC_DESCRIPTION"]="Classic description";
 $language["GOLD_LEVEL"]="Who can add gold/silver torrents";
-
+// Gold/Silver Torrent v 1.2 by Losmi / end
 ]]></data>
       <where>"before"</where>
     </operation>
@@ -378,9 +380,9 @@ $language["GOLD_LEVEL"]="Who can add gold/silver torrents";
      <search><![CDATA[?>]]></search>
       <action>"add"</action>
       <data><![CDATA[
-//GOLD
+// Gold/Silver Torrent v 1.2 by Losmi / start
 $language["ACP_GOLD"]="Gold torrents settings";
-
+// Gold/Silver Torrent v 1.2 by Losmi / end
 ]]></data>
       <where>"before"</where>
     </operation>
@@ -398,12 +400,13 @@ $language["ACP_GOLD"]="Gold torrents settings";
    }]]></search>
       <action>"add"</action>
       <data><![CDATA[
-    //gold mod
+// Gold/Silver Torrent v 1.2 by Losmi / start
     $golden = 0;
    if($_POST["gold"]!='' && isset($_POST["gold"]))
    {
     $golden = mysql_real_escape_string($_POST["gold"]);
    }
+// Gold/Silver Torrent v 1.2 by Losmi / end
    ]]></data>
       <where>"after"</where>
       </operation>
@@ -411,9 +414,10 @@ $language["ACP_GOLD"]="Gold torrents settings";
           <search><![CDATA[write_log("Modified torrent $fname ($torhash)","modify");]]></search>
           <action>"add"</action>
           <data><![CDATA[
+// Gold/Silver Torrent v 1.2 by Losmi / start
           if($golden!='' && isset($golden))
               do_sqlquery("UPDATE {$TABLE_PREFIX}files SET gold='$golden' WHERE info_hash='" . $torhash . "'",true);
-
+// Gold/Silver Torrent v 1.2 by Losmi / end
           ]]></data> 
           <where>"after"</where>
       </operation>
@@ -427,7 +431,7 @@ $language["ACP_GOLD"]="Gold torrents settings";
               <search><![CDATA[$torrent=array();]]></search>
               <action>"add"</action>
               <data><![CDATA[
-    /*Start gold mod by losmi*/
+    // Gold/Silver Torrent v 1.2 by Losmi / start
     $gold_level='';
     $resg=get_result("SELECT * FROM {$TABLE_PREFIX}gold  WHERE id='1'",true);
     foreach ($resg as $key=>$value)
@@ -441,7 +445,7 @@ $language["ACP_GOLD"]="Gold torrents settings";
          $torrenttpl->set("edit_gold_level",true,true);
 
     $torrent["gold"]=createGoldCategories($results["gold"]);
-    /*End gold mod by losmi*/
+    // Gold/Silver Torrent v 1.2 by Losmi / end
 ]]></data>
               <where>"after"</where>
         </operation>
@@ -455,10 +459,11 @@ $language["ACP_GOLD"]="Gold torrents settings";
     <operation>
      <search><![CDATA["description"=>$language["ACP_PRUNE_TORRENTS"])]]></search>
       <action>"replace"</action>
-      <data><![CDATA["description"=>$language["ACP_PRUNE_TORRENTS"]),
+      <data><![CDATA[// Gold/Silver Torrent v 1.2 by Losmi / start
                     array(
                     "url"=>"index.php?page=admin&amp;user=".$CURUSER["uid"]."&amp;code=".$CURUSER["random"]."&amp;do=gold" ,
-                    "description"=>$language["ACP_GOLD"])]]></data>
+                    "description"=>$language["ACP_GOLD"]))
+// Gold/Silver Torrent v 1.2 by Losmi / end]]></data>
     </operation>
   </file>
   <!-- End edit edit.php -->
@@ -469,11 +474,12 @@ $language["ACP_GOLD"]="Gold torrents settings";
      <search><![CDATA[switch ($do)
     {]]></search>
       <action>"add"</action>
-      <data><![CDATA[
-      case 'gold':
-          include("$ADMIN_PATH/admin.gold.php");
-          $tpl->set("main_content",set_block($language["ACP_GOLD"],"center",$admintpl->fetch(load_template("admin.gold.tpl"))));
-          break;
+      <data><![CDATA[// Gold/Silver Torrent v 1.2 by Losmi / start
+    case 'gold':
+      include("$ADMIN_PATH/admin.gold.php");
+      $tpl->set("main_content",set_block($language["ACP_GOLD"],"center",$admintpl->fetch(load_template("admin.gold.tpl"))));
+      break;
+// Gold/Silver Torrent v 1.2 by Losmi / end
 ]]></data>
       <where>"after"</where>
     </operation>
@@ -505,7 +511,7 @@ $language["ACP_GOLD"]="Gold torrents settings";
      <search><![CDATA[function collectBytes($peer, $hash, $left, $downloaded=0, $uploaded=0, $pid="")]]></search>
       <action>"add"</action>
       <data><![CDATA[
-/*mod gold - Gold method checks is torrent set to gold silver or classic*/
+// Gold/Silver Torrent v 1.2 by Losmi / start - Gold method checks is torrent set to gold silver or classic
 function checkGold($info_hash,$downloaded)
 {
     global $TABLE_PREFIX;
@@ -527,7 +533,7 @@ function checkGold($info_hash,$downloaded)
      }
      return $downloaded;
 }
-//end mod gold
+// Gold/Silver Torrent v 1.2 by Losmi / end
 ]]></data>
       <where>"before"</where>
     </operation>
@@ -535,9 +541,9 @@ function checkGold($info_hash,$downloaded)
      <search><![CDATA[$peerid=$peer["peer_id"];]]></search>
       <action>"add"</action>
       <data><![CDATA[
-     //gold mod
+// Gold/Silver Torrent v 1.2 by Losmi / start
      $downloaded = checkGold($info_hash,$downloaded);
-     //end gold mod
+// Gold/Silver Torrent v 1.2 by Losmi / end
      ]]></data>
       <where>"after"</where>
     </operation>
@@ -545,10 +551,9 @@ function checkGold($info_hash,$downloaded)
      <search><![CDATA[quickquery("UPDATE {$TABLE_PREFIX}users SET downloaded=]]></search>
       <action>"add"</action>
       <data><![CDATA[
-
-     //gold mod
+// Gold/Silver Torrent v 1.2 by Losmi / start
      $newdown = checkGold($info_hash,$newdown);
-     //end gold mod
+// Gold/Silver Torrent v 1.2 by Losmi / end
 
 ]]></data>
       <where>"before"</where>
@@ -557,8 +562,8 @@ function checkGold($info_hash,$downloaded)
      <search><![CDATA[@mysql_query("UPDATE {$TABLE_PREFIX}users SET uploaded=IFNULL]]></search>
       <action>"add"</action>
       <data><![CDATA[
+// Gold/Silver Torrent v 1.2 by Losmi / start
       {
-        //gold mod
         $downloaded = checkGold($info_hash,$downloaded);
         ]]></data>
       <where>"before"</where>
@@ -569,7 +574,7 @@ function checkGold($info_hash,$downloaded)
       <action>"add"</action>
       <data><![CDATA[
       }
-      //end gold mod
+// Gold/Silver Torrent v 1.2 by Losmi / end
 
 ]]></data>
       <where>"before"</where>
@@ -578,9 +583,9 @@ function checkGold($info_hash,$downloaded)
      <search><![CDATA[quickQuery("UPDATE {$TABLE_PREFIX}peers SET bytes=0, status=\"seeder\", lastupdate=UNIX_TIMESTAMP(), downloaded=$downloaded, uploaded=$uploaded, pid=\"$pid\" WHERE sequence=\"".$GLOBALS["trackerid"]."\" AND infohash=\"$info_hash\"");]]></search>
       <action>"add"</action>
       <data><![CDATA[
-            //gold mod
+// Gold/Silver Torrent v 1.2 by Losmi / start
             $downloaded = checkGold($info_hash,$downloaded);
-            //end gold mod
+// Gold/Silver Torrent v 1.2 by Losmi / end
             ]]></data>
       <where>"before"</where>
     </operation>
