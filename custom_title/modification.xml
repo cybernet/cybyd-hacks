@@ -7,7 +7,7 @@
     <name>"database"</name>
     <operation>
       <action>"sql"</action>
-      <data><![CDATA[ALTER TABLE `{$db_prefix}users` ADD `custom_title` VARCHAR( 50 ) NULL;]]></data>
+      <data><![CDATA[ALTER TABLE `{$db_prefix}users` ADD `custom_title` VARCHAR( 51 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'User' COMMENT 'Prefered to be called' AFTER `id_level`;]]></data>
     </operation>
   </file>
   <file>
