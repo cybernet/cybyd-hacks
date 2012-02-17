@@ -1,7 +1,7 @@
 ﻿<hack>
   <title>Bonus system</title>
-  <author>Real_ptr</author>
-  <version>1.3 (2.2.1)(r669)</version>
+  <author>Real_ptr / cybernet2u</author>
+  <version>1.3 (2.3.0)(r743) by cybernet2u</version>
   <file>
     <name>"database"</name>
     <operation>
@@ -11,19 +11,19 @@ VALUES (NULL , 'seedbonus', 'yes', 'misc', NOW(), NOW());]]></data>
     </operation>
     <operation>
       <action>"sql"</action>
-      <data><![CDATA[INSERT INTO `{$db_prefix}settings` SET `key`='bonus', `value`='1']]></data>
+      <data><![CDATA[INSERT INTO `{$db_prefix}settings` SET `key`='bonus', `value`='1';]]></data>
     </operation>
     <operation>
       <action>"sql"</action>
-      <data><![CDATA[INSERT INTO `{$db_prefix}settings` SET `key`='price_vip', `value`='750']]></data>
+      <data><![CDATA[INSERT INTO `{$db_prefix}settings` SET `key`='price_vip', `value`='750';]]></data>
     </operation>
     <operation>
       <action>"sql"</action>
-      <data><![CDATA[INSERT INTO `{$db_prefix}settings` SET `key`='price_ct', `value`='200']]></data>
+      <data><![CDATA[INSERT INTO `{$db_prefix}settings` SET `key`='price_ct', `value`='200';]]></data>
     </operation>
     <operation>
       <action>"sql"</action>
-      <data><![CDATA[INSERT INTO `{$db_prefix}settings` SET `key`='price_name', `value`='500']]></data>
+      <data><![CDATA[INSERT INTO `{$db_prefix}settings` SET `key`='price_name', `value`='500';]]></data>
     </operation>
     <operation>
       <action>"sql"</action>
@@ -31,20 +31,20 @@ VALUES (NULL , 'seedbonus', 'yes', 'misc', NOW(), NOW());]]></data>
     </operation>
     <operation>
       <action>"sql"</action>
-      <data><![CDATA[CREATE TABLE `{$db_prefix}bonus` (
-  `id` int(5) NOT NULL auto_increment,
-  `name` varchar(50) NOT NULL default '',
-  `points` decimal(4,1) NOT NULL default '000.0',
-  `traffic` bigint(20) unsigned NOT NULL default '0',
-  `gb` int(9) NOT NULL default '0',
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM;]]></data>
+      <data><![CDATA[CREATE TABLE IF NOT EXISTS `{$db_prefix}bonus` (
+  `id` int(5) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) NOT NULL DEFAULT '',
+  `points` decimal(4,1) NOT NULL DEFAULT '0.0',
+  `traffic` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `gb` int(9) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;]]></data>
     </operation>
     <operation>
       <action>"sql"</action>
-      <data><![CDATA[INSERT INTO `{$db_prefix}bonus` (`id`, `name`, `points`, `traffic`, `gb`) VALUES (3, '1', 030.0, 1073741824, 1),
-(4, '2', 050.0, 2147483648, 2),
-(5, '3', 100.0, 5368709120, 5);]]></data>
+      <data><![CDATA[INSERT INTO `{$db_prefix}bonus` (`id`, `name`, `points`, `traffic`, `gb`) VALUES (NULL, '1', 030.0, 1073741824, 1),
+(NULL, '2', 050.0, 2147483648, 2),
+(NULL, '3', 100.0, 5368709120, 5);]]></data>
     </operation>
   </file>
 
@@ -53,30 +53,21 @@ VALUES (NULL , 'seedbonus', 'yes', 'misc', NOW(), NOW());]]></data>
   <name>"$DEFAULT_ROOT/include/functions.php"</name>
   <operation>
     <action>"replace"</action>
-	<search><![CDATA[$id = (!isset($_COOKIE['uid']))?1:max(1, (int)$_COOKIE['uid']);
-
-  $res = get_result("SELECT]]></search>
-    <data><![CDATA[$id = (!isset($_COOKIE['uid']))?1:max(1, (int)$_COOKIE['uid']);
-
-  $res = get_result("SELECT u.seedbonus,]]></data>
+	<search><![CDATA[if($id>1)
+    {
+        $res = do_sqlquery("SELECT]]></search>
+    <data><![CDATA[if($id>1)
+    {
+        $res = do_sqlquery("SELECT u.seedbonus,]]></data>
   </operation>
   <operation>
     <action>"replace"</action>
-    <search><![CDATA[if (!$row) {
-    $id=1;
-    $res = get_result("SELECT]]></search>
-    <data><![CDATA[if (!$row) {
-    $id=1;
-    $res = get_result("SELECT u.seedbonus,]]></data>
-  </operation>
-  <operation>
-    <action>"replace"</action>
-    <search><![CDATA[if (($_COOKIE['pass']!=md5($row['random'].$row['password'].$row['random'])) && $id!=1) {
-    $id=1;
-    $res = get_result("SELECT]]></search>
-    <data><![CDATA[if (($_COOKIE['pass']!=md5($row['random'].$row['password'].$row['random'])) && $id!=1) {
-    $id=1;
-    $res = get_result("SELECT u.seedbonus,]]></data>
+    <search><![CDATA[if($id==1)
+    {
+        $res = do_sqlquery("SELECT]]></search>
+    <data><![CDATA[if($id==1)
+    {
+        $res = do_sqlquery("SELECT u.seedbonus,]]></data>
   </operation>
   </file>
 
@@ -95,6 +86,7 @@ VALUES (NULL , 'seedbonus', 'yes', 'misc', NOW(), NOW());]]></data>
     <where>"before"</where>
     <search><![CDATA[// SANITY FOR TORRENTS]]></search>
     <data><![CDATA[
+// Bonus system by Real_ptr 1.3 (2.2.1) - upgraded to rev 743 by cybernet2u / start
 if ($XBTT_USE) {
  $res = do_sqlquery("SELECT uid FROM xbt_files_users as u INNER JOIN xbt_files as x ON u.fid=x.fid WHERE u.left = '0' AND x.flags='0' AND u.active='1'");
    if (mysql_num_rows($res) > 0)
@@ -115,6 +107,7 @@ if ($XBTT_USE) {
        quickQuery("UPDATE {$TABLE_PREFIX}users SET seedbonus = seedbonus+".$GLOBALS["bonus"]."*".$clean_interval."/3600 WHERE pid = '$x'");
        }
    } }
+// Bonus system by Real_ptr 1.3 (2.2.1) - upgraded to rev 743 by cybernet2u / end
    ]]></data>
   </operation>
   </file>
@@ -126,10 +119,12 @@ if ($XBTT_USE) {
     <search><![CDATA[$votesppage=25;]]></search>
     <data><![CDATA[
 
+// Bonus system by Real_ptr 1.3 (2.2.1) - upgraded to rev 743 by cybernet2u / start
 $GLOBALS["bonus"] = $btit_settings["bonus"];
 $GLOBALS["price_vip"] = $btit_settings["price_vip"];
 $GLOBALS["price_ct"] = $btit_settings["price_ct"];
 $GLOBALS["price_name"] = $btit_settings["price_name"];
+// Bonus system by Real_ptr 1.3 (2.2.1) - upgraded to rev 743 by cybernet2u / end
 
     ]]></data>
   </operation>
