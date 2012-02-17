@@ -1,0 +1,209 @@
+<hack>
+  <title>Ask for Gold</title>
+  <author>DiemThuy (Modified for xbtit_v2.2.0_r642 by KC)</author>
+  <version>1.1</version>
+  
+<!-- start AFG Database stuffing-->
+    <file>
+    <name>"database"</name>
+    <operation>
+    <action>"sql"</action>
+    <data><![CDATA[CREATE TABLE `{$db_prefix}free_leech_req` (
+  `info_hash` varchar(40) NOT NULL,
+  `count` int(10) NOT NULL default '1',
+  `approved` enum('yes','no','undecided') NOT NULL default 'undecided',
+  `requester_ids` text NOT NULL,
+  UNIQUE KEY `info_hash` (`info_hash`)
+);]]></data>
+    </operation>
+    </file>
+    
+        <!-- start index.php-->
+    <file>
+    <name>"$DEFAULT_ROOT/index.php"</name>
+    <operation>
+              <search><![CDATA[    case 'userdetails':
+        require("$THIS_BASEPATH/userdetails.php");
+        $tpl->set("main_content",set_block($language["USER_DETAILS"],"center",$userdetailtpl->fetch(load_template("userdetails.tpl"))));
+        $tpl->set("main_title",$btit_settings["name"]." .::. "."Index->Users->Details");
+        break;]]></search>
+          <action>"add"</action>
+          <data><![CDATA[
+// AFG hack
+
+    case 'freereq':
+        require("$THIS_BASEPATH/freereq.php");
+        $tpl->set("main_content",set_block($language["FREEREQ"],"center",$torrenttpl->fetch(load_template("freereq.tpl"))));
+        $tpl->set("main_title",$btit_settings["name"]." .::. "."Index->freereq");
+        break;
+        ]]></data>
+       <where>"after"</where>
+    </operation>
+    </file>
+     <!-- End index.php -->
+  
+    <!-- start details.php-->
+    <file>
+    <name>"$DEFAULT_ROOT/details.php"</name>
+    <operation>
+              <search><![CDATA[$torrenttpl=new bTemplate();]]></search>
+          <action>"add"</action>
+          <data><![CDATA[
+   //start Gold request hack
+
+   if(!is_null($row["requester_ids"]))
+{
+    $requesters=unserialize($row["requester_ids"]);
+    $list="";
+    foreach($requesters as $v)
+    {
+        $list.=$v.",";
+    }
+    $list=trim($list, ",");
+}
+else
+{
+    $list="";
+    $requesters=array();
+}
+ $torrenttpl->set("free1","<td align='right' class='header'>Ask for Gold</td>");
+if($list!="")
+{
+    $res5=mysql_query("SELECT u.id, u.username, ul.prefixcolor, ul.suffixcolor FROM {$TABLE_PREFIX}users u LEFT JOIN {$TABLE_PREFIX}users_level ul ON u.id_level = ul.id WHERE u.id IN ($list) ORDER BY u.id ASC");
+
+while($requsers = mysql_fetch_assoc($res5))
+
+
+{
+    $userlist.=(($GLOBALS[usepopup])?"<a href=\"javascript:windowunder('index.php?page=userdetails&id=".$requsers["id"]."');\">":"<a href='index.php?page=userdetails&id=".$requsers["id"]."'>") . stripslashes($requsers["prefixcolor"]) . $requsers["username"] . stripslashes($requsers["suffixcolor"]) . "</a>, ";
+}
+(($userlist!="")?$userlist=trim($userlist, ", ") . ".":$userlist="");
+  }
+if($row["gold"]==0 && ($row["approved"]=="undecided" || is_null($row["approved"])))
+$torrenttpl->set("free2","<td class='lista' align='center'>$userlist<br />(".((!is_null($row["count"]))?$row["count"]:0)." request".(($row["count"]==1)?"":"s")." so far)".((!in_array($CURUSER["uid"], $requesters))?"<br /><a href='index.php?page=freereq&id=$id'>Request for this torrent to be set to Gold</a>":"<br /><strong>You have already made a request.</strong>")."</td>");
+elseif($row["gold"]==1 && ($row["approved"]=="undecided" || is_null($row["approved"])))
+$torrenttpl->set("free2","<td class='lista' align='center'>$userlist<br />(".((!is_null($row["count"]))?$row["count"]:0)." request".(($row["count"]==1)?"":"s")." so far)".((!in_array($CURUSER["uid"], $requesters))?"<br /><a href='index.php?page=freereq&id=$id'>Request for this torrent to change from Silver to Gold</a>":"<br /><strong>You have already made a request.</strong>")."</td>");
+elseif($row["gold"]==0 && $row["approved"]=="no")
+$torrenttpl->set("free2","<td class='lista' align='center'>Sorry, already declined by Admin</td>");
+elseif($row["gold"]==1 && $row["approved"]=="no")
+$torrenttpl->set("free2","<td class='lista' align='center'>Sorry, already declined by Admin</td>");
+elseif($row["gold"]==2)
+$torrenttpl->set("free2","<td class='lista' align='center'>This torrent is already set to Gold</td>");
+
+    //end
+
+]]></data>
+       <where>"after"</where>
+    </operation>
+    <operation>
+      <search><![CDATA[FROM $ttables LEFT JOIN {$TABLE_PREFIX}categories]]></search>
+      <action>"replace"</action>
+      <data><![CDATA[,f.gold, flr.count, flr.approved, flr.requester_ids FROM $ttables LEFT JOIN {$TABLE_PREFIX}free_leech_req flr ON f.info_hash=flr.info_hash LEFT JOIN {$TABLE_PREFIX}categories]]></data>
+    </operation>
+    </file>
+  <!-- End details.php -->
+  
+   <!-- Start torrent.details.tpl-->
+    <file>
+    <name>"$DEFAULT_ROOT/style/xbtit_default/torrent.details.tpl"</name>
+    <operation>
+      <search><![CDATA[<if:EXTERNAL>]]></search>
+      <action>"add"</action>
+      <data><![CDATA[
+         <tr>
+          <tag:free1 />
+          <tag:free2 />
+         </tr>
+           ]]></data>
+      <where>"before"</where>
+    </operation>
+  </file>
+    <!-- End torrent.details.tpl -->
+
+     <!-- start admin.menu.php-->
+    <file>
+    <name>"$DEFAULT_ROOT/admin/admin.menu.php"</name>
+    <operation>
+              <search><![CDATA["description"=>$language["ACP_PRUNE_TORRENTS"])]]></search>
+          <action>"add"</action>
+          <data><![CDATA[,
+                    // free leech req
+                    42=>array(
+                    "url"=>"index.php?page=admin&amp;user=".$CURUSER["uid"]."&amp;code=".$CURUSER["random"]."&amp;do=freeleech_req" ,
+                    "description"=>$language["ACP_FREELEECH_REQ"])]]></data>
+       <where>"after"</where>
+    </operation>
+    </file>
+  <!-- End admin.menu.php -->
+
+  <!-- Start admin.index.php -->
+  <file>
+    <name>"$DEFAULT_ROOT/admin/admin.index.php"</name>
+    <operation>
+      <search><![CDATA[case 'groups':
+      include("$ADMIN_PATH/admin.groups.php");
+      $tpl->set("main_content",set_block($block_title,"center",$admintpl->fetch(load_template("admin.groups.tpl"))));
+      break;]]></search>
+      <action>"add"</action>
+      <data><![CDATA[
+      case 'freeleech_req':
+          include("$ADMIN_PATH/admin.freeleech_req.php");
+          $tpl->set("main_content",set_block($language["ACP_FREELEECH_REQ"],"center",$admintpl->fetch(load_template("admin.freeleech_req.tpl"))));
+          break;
+          ]]></data>
+       <where>"after"</where>
+    </operation>
+  </file>
+  <!-- End admin.index.php -->
+
+<!-- Start lang_admin.php -->
+  <file>
+    <name>"$DEFAULT_LANGUAGE_PATH/lang_admin.php"</name>
+    <operation>
+     <search><![CDATA[?>]]></search>
+      <action>"add"</action>
+      <data><![CDATA[
+      $language["ACP_FREELEECH_REQ"]="Free Leech Request";
+      ]]></data>
+      <where>"before"</where>
+    </operation>
+   </file>
+ <!-- End lang_admin.php -->
+    <file>
+    <name>"$DEFAULT_ROOT/blocks/dropdownmenu_block.php"</name>
+    <operation>
+      <search><![CDATA[print("<li><a href='index.php?page=admin&amp;user=".$CURUSER["uid"]."&amp;code=".$CURUSER["random"]."&do=prunet'>".$language['ACP_PRUNE_TORRENTS']."</a></ul></li>\n");]]></search>
+      <action>"add"</action>
+      <where>"before"</where>
+      <data><![CDATA[print("<li><a href='index.php?page=admin&amp;user=".$CURUSER["uid"]."&amp;code=".$CURUSER["random"]."&amp;do=freeleech_req'>".$language['ACP_FREELEECH_REQ']."</a></li>\n");
+        ]]></data>      
+    </operation>
+  </file>
+
+    <!-- Copy 3 files-->
+   <file>
+  <name>"$CURRENT_FOLDER/files/freereq.php"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT"</where>
+      <data>"freereq.php"</data>
+    </operation>
+  </file>
+  <file>
+  <name>"$CURRENT_FOLDER/files/admin.freeleech_req.tpl"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_STYLE_PATH"</where>
+      <data>"admin.freeleech_req.tpl"</data>
+    </operation>
+  </file> 
+    <file>
+  <name>"$CURRENT_FOLDER/files/admin.freeleech_req.php"</name>
+    <operation>
+      <action>"copy"</action>
+      <where>"$DEFAULT_ROOT/admin/"</where>
+      <data>"admin.freeleech_req.php"</data>
+    </operation>
+  </file>
+  <!-- end good , all good  -->
+</hack>

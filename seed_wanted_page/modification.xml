@@ -1,0 +1,71 @@
+<hack>
+  <title>Seed Wanted Page</title>
+  <author>DiemThuy</author>
+  <version>1.0</version>
+  
+
+
+  <file>
+    <name>"$DEFAULT_LANGUAGE_PATH/lang_main.php"</name>
+    <operation>
+      <search><![CDATA[?>]]></search>
+      <action>"add"</action>
+      <where>"before"</where>
+      <data><![CDATA[$language['SEEDWANTED']='Seed Wanted';]]></data>
+    </operation>
+  </file>
+
+
+
+  <file>
+    <name>"$DEFAULT_ROOT/index.php"</name>
+    <operation>
+      <search><![CDATA[case 'userdetails':
+        require("$THIS_BASEPATH/userdetails.php");
+        $tpl->set("main_content",set_block($language["USER_DETAILS"],"center",$userdetailtpl->fetch(load_template("userdetails.tpl"))));
+        $tpl->set("main_title",$btit_settings["name"]." .::. "."Index->Users->Details");
+        break;]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+      //seedwanted
+    case 'seedwanted':
+        require("$THIS_BASEPATH/seedwanted.php");
+        $tpl->set("main_content",set_block($language["SEEDWANTED"],"center",$seedwanttpl->fetch(load_template("seedwanted.tpl"))));
+        $tpl->set("main_title",$btit_settings["name"]." .::. "."Index->".$language["SEEDWANTED"]."");
+        break;
+//end seedwanted
+]]></data>
+    </operation>
+  </file>
+
+<file>
+    <name>"$DEFAULT_ROOT/blocks/mainmenu_block.php"</name>
+    <operation>
+      <search><![CDATA[print("<td class=\"header\" align=\"center\"><a href=\"index.php?page=torrents\">".$language["MNU_TORRENT"]."</a></td>\n");]]></search>
+      <action>"add"</action>
+      <where>"after"</where>
+      <data><![CDATA[
+print("<td class=\"header\" align=\"center\"><a href=\"index.php?page=seedwanted\">".$language["SEEDWANTED"]."</a></td>\n");
+]]></data>
+    </operation>
+  </file>
+  
+  <file>
+    <name>"$CURRENT_FOLDER/toCopy/seedwanted.php"</name>
+    <operation>
+      <action>"copy"</action> 
+      <where>"$DEFAULT_ROOT"</where>
+      <data>"seedwanted.php"</data>
+    </operation>
+  </file>
+
+  <file>
+    <name>"$CURRENT_FOLDER/toCopy/seedwanted.tpl"</name>
+    <operation>
+      <action>"copy"</action> 
+      <where>"$DEFAULT_STYLE_PATH"</where> 
+      <data>"seedwanted.tpl"</data>
+    </operation>
+  </file>
+  </hack>
